@@ -1,0 +1,35 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: black;
+}
+
+.post-card {
+    border: 1px solid #ccc;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #ccc;
+    display: flex;
+    gap: 10px;
+}
+
+.user-card img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.post-body h3{
+    margin-bottom: 10px;
+}
+
+.like{
+    margin-top: 10px;
+    color: #ef481f;
+    font-size: 14px;
+}
