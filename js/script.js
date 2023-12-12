@@ -1,68 +1,108 @@
-const showPost = (posts, users) => {
-    const onlyTenPost = posts.slice(0, 10);
-    console.log(onlyTenPost);
+function showPost(name, image, body, reaction) {
+  const postContainer = document.querySelector('.postContainer')
 
-    const postContainer = document.createElement("div");
-    postContainer.classList = "post-container";
-    document.body.append(postContainer);
+  const postCard = document.createElement("div");
+  postCard.classList = "post-card";
+  postContainer.prepend(postCard);
 
-    for (const post of onlyTenPost) {
+  const userCard = document.createElement("div");
+  userCard.classList = "user-card";
+  postCard.append(userCard);
 
-    const postCard = document.createElement("div");
-    postCard.classList = "post-card";
-    postContainer.append(postCard);
+  const imageUser = document.createElement("img");
+  imageUser.src = image;
+  userCard.append(imageUser);
 
-    const userCard = document.createElement("div");
-    userCard.classList = "user-card";
-    postCard.append(userCard);
+  const postBody = document.createElement("div");
+  postBody.classList = "post-body";
+  postCard.append(postBody);
 
-    const imageUser = document.createElement("img");
-    imageUser.src = post.userId.image;
-    userCard.append(imageUser);
+  const username = document.createElement("h3");
+  username.innerText = name;
+  postBody.append(username);
 
-    
-    const postBody = document.createElement("div");
-    postBody.classList = "post-body";
-    postCard.append(postBody);
-    
-    const name = document.createElement("h3");
-    name.innerText = post.userId.username;
-    postBody.append(name);
+  const postText = document.createElement("p");
+  postText.innerText = body;
+  postBody.append(postText);
 
-    const postText = document.createElement("p");
-    postText.innerText = post.body;
-    postBody.append(postText);
-
-    const postReactions = document.createElement("p");
-    postReactions.innerText = `Like: ${post.reactions}`;
-    postReactions.classList = "like"
-    postBody.append(postReactions);
-    }
+  const postReactions = document.createElement("p");
+  postReactions.innerText = `Like: ${reaction}`;
+  postReactions.classList = "like";
+  postBody.append(postReactions);
 }
 
-async function fetchPost() {
-    try{
-        const response = await fetch(`https://dummyjson.com/posts/`)
-        const data = await response.json()
-        showPost(data.posts)
-    }catch(err){
-        console.log(err);
-    }
-}
-fetchPost()
+async function fetchPostAndUser() {
+  try {
+    const response = await fetch("https://dummyjson.com/posts");
+    const data = await response.json();
 
-async function fetchUser(id) {
-    try{
-        const response = await fetch(`https://dummyjson.com/posts/${id}`);
-        const postData = await response.json();
-      
-        const userId = postData.userId;
-      
-        const responseUser = await fetch(`https://dummyjson.com/user/${userId}`);
-        const userData = await responseUser.json();
-        showPost(userData.users)
-    }catch(err){
-        console.log(err);
+    let onlyTenPosts = data.posts.slice(0, 10);
+    for (const post of onlyTenPosts) {
+      let userId = post.userId;
+      const response = await fetch(`https://dummyjson.com/users/${userId}`);
+      const data = await response.json();
+
+      const name = data.username;
+      const image = data.image;
+      const body = post.body;
+      const reaction = post.reactions;
+
+      showPost(name, image, body, reaction);
     }
+  } catch (error) {
+    console.error("Error fetching user image:", error);
+  }
 }
-fetchUser(1)
+
+fetchPostAndUser();
+
+const form = document.querySelector("form");
+
+async function fetchUserImage() {
+  try {
+    const responseUser = await fetch(`https://dummyjson.com/users/15`);
+    const userData = await responseUser.json();
+    const userImage = userData.image;
+
+    const userImageElement = document.querySelector(".user-image");
+    userImageElement.src = userImage;
+  } catch (error) {
+    console.error("Error fetching user image:", error);
+  }
+}
+fetchUserImage();
+
+async function addNewMessage(event) {
+  event.preventDefault();
+
+  const message = document.querySelector("#message").value;
+
+  try {
+    const responseUser = await fetch(`https://dummyjson.com/users/15`);
+    const data = await responseUser.json();
+    const userId = data.id;
+    const name = data.username;
+    const image = data.image;
+
+    const response = await fetch("https://dummyjson.com/posts/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: message,
+        userId: userId,
+        name: name,
+        image: image,
+      }),
+    });
+    const responseData = await response.json();
+    // const postContainer = document.querySelector('.postContainer')
+    // postContainer.prepend(responseData)
+    console.log(responseData);
+    showPost(name, image, message, 0);
+    document.querySelector("#message").value = "";
+  } catch (error) {
+    console.error("Error fetching user image:", error);
+  }
+}
+
+form.addEventListener("submit", addNewMessage);
