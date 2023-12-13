@@ -95,8 +95,6 @@ async function addNewMessage(event) {
       }),
     });
     const responseData = await response.json();
-    // const postContainer = document.querySelector('.postContainer')
-    // postContainer.prepend(responseData)
     console.log(responseData);
     showPost(name, image, message, 0);
     document.querySelector("#message").value = "";
