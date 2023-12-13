@@ -1,5 +1,5 @@
 function showPost(name, image, body, reaction) {
-  const postContainer = document.querySelector('.postContainer')
+  const postContainer = document.querySelector(".postContainer");
 
   const postCard = document.createElement("div");
   postCard.classList = "post-card";
@@ -7,7 +7,7 @@ function showPost(name, image, body, reaction) {
 
   const userCard = document.createElement("div");
   userCard.classList = "user-card";
-  postCard.append(userCard);
+  postCard.prepend(userCard);
 
   const imageUser = document.createElement("img");
   imageUser.src = image;
@@ -25,8 +25,8 @@ function showPost(name, image, body, reaction) {
   postText.innerText = body;
   postBody.append(postText);
 
-  const postReactions = document.createElement("p");
-  postReactions.innerText = `Like: ${reaction}`;
+  const postReactions = document.createElement("div");
+  postReactions.innerHTML = `<img src="img/Like.svg"> ${reaction}`;
   postReactions.classList = "like";
   postBody.append(postReactions);
 }
@@ -96,11 +96,24 @@ async function addNewMessage(event) {
     });
     const responseData = await response.json();
     console.log(responseData);
+
+    const savedPosts = JSON.parse(localStorage.getItem("posts")) || [];
+    savedPosts.push({ name, image, body: message, reaction: 0 });
+    localStorage.setItem("posts", JSON.stringify(savedPosts));
+
     showPost(name, image, message, 0);
     document.querySelector("#message").value = "";
   } catch (error) {
     console.error("Error fetching user image:", error);
   }
 }
+
+function loadPostsFromLocalStorage() {
+  const savedPosts = JSON.parse(localStorage.getItem("posts")) || [];
+  for (const post of savedPosts) {
+    showPost(post.name, post.image, post.body, post.reaction);
+  }
+}
+loadPostsFromLocalStorage();
 
 form.addEventListener("submit", addNewMessage);
